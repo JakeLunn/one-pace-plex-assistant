@@ -1,109 +1,58 @@
 '''Plex module for One Pace Plex Importer'''
-import sys
-from dataclasses import dataclass
-import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element
 from argparse import Namespace
-import requests
+from plexapi.server import PlexServer
+from plexapi.library import ShowSection
+from modules.onepacenet import get_arcs, extract_description, extract_title
 
 
-@dataclass
-class Library:
-    '''Plex library data class'''
-    key: str
-    title: str
-
-
-@dataclass
-class Show:
-    '''Plex show data class'''
-    rating_key: str
-    title: str
-
-
-class PlexService:
-    '''Plex class for One Pace Plex Importer'''
-
-    def __init__(self, plex_token: str, plex_host: str, plex_library: str):
-        self.plex_token = plex_token
-        self.plex_host = plex_host
-        self.plex_library = plex_library
-
-    def post_metadata(self,
-                      show_name: str,
-                      change_show_name: bool) -> None:
-        '''Post metadata to Plex'''
-        return None
-
-    def get_libraries(self) -> list[Library]:
-        '''Get the Plex library sections'''
-        response = requests.get(
-            f'{self.plex_host}/library/sections?includeMeta=1&X-Plex-Token={self.plex_token}', timeout=10, headers={"Accept": "application/json"})
-        if response.status_code == 401:
-            print('Invalid Plex token')
-            return None
-        print(response.text)
-        data = response.json()
-        libraries = [Library(**{k: v for k, v in section.items() if k in ['key', 'title']})
-                     for section in data['MediaContainer']['Directory']]
-        return libraries
-
-    def get_shows(self, library: Library) -> list[Show]:
-        '''Get the show from the Plex library'''
-        response = requests.get(
-            f'{self.plex_host}/library/sections/{library.key}/all\
-                ?type=2\
-                &includeMeta=1\
-                &X-Plex-Token={self.plex_token}',
-            timeout=10,
-            headers={"Accept": "application/json"})
-        if response.status_code == 401:
-            print('Invalid Plex token')
-            return None
-        print(response.text)
-        data = response.json()
-        shows = [Show(**{k: v for k, v in show.items() if k in ['ratingKey', 'title']})
-                 for show in data['MediaContainer']['Metadata']]
-
-        return shows
-
-
-def __get_library(plex_service: PlexService, library_name: str) -> Library:
-    libraries = plex_service.get_libraries()
-    if libraries is None:
-        print('Failed to get Plex libraries')
-        sys.exit(1)
-    libraries = [section for section
-                 in libraries
-                 if section.title == library_name]
-    if len(libraries) == 0:
-        print(f'Failed to find Plex library: {library_name}')
-        sys.exit(1)
-    library = libraries[0]
-    return library
-
-
-def __get_show(plex_service: PlexService, library: Library, show_name: str) -> Show:
-    shows = plex_service.get_shows(library)
-
-    shows = [show for show in shows if show.title == show_name]
-
-    if len(shows) == 0:
-        print(f'Failed to find show with name: {show_name}')
-        sys.exit(1)
-
-    show = shows[0]
-
-    return show
+def __get_show(plex: PlexServer, library: str, show_name: str) -> ShowSection:
+    '''Get the show from Plex'''
+    return plex.library.section(library).searchShows(title=show_name)[0]
 
 
 def run(args: Namespace) -> None:
     '''Run the Plex module'''
-    plex_service = PlexService(
-        args.plex_token, args.plex_host, args.plex_library)
+    plex = PlexServer(args.plex_host, args.plex_token)
 
-    library = __get_library(plex_service, args.plex_library)
-    print(f"Found library: {library.title} ({library.key})")
+    show = __get_show(plex, args.plex_library, args.one_piece_show_name)
+    print(f"Found show: {show.title} ({show.ratingKey})")
 
-    show = __get_show(plex_service, library, args.one_piece_show_name)
-    print(f"Found show: {show.title} ({show.rating_key})")
+    if args.change_show_name and show.title != 'One Pace':
+        print(f"Changing show name to One Pace")
+        show.edit(**{'title.value': 'One Pace'})
+
+    onepace_arcs = get_arcs()
+
+    for season in show.seasons():
+        print(f"Processing season: {season.title} ({season.ratingKey})")
+        for episode in season.episodes():
+            print(f"Processing episode: {episode.title} ({episode.ratingKey})")
+            for arc in onepace_arcs:
+                if arc['part'] == season.seasonNumber:
+                    arc_title = extract_title(arc)
+                    arc_description = extract_description(arc)
+                    formatted_arc_title = f"{arc['part']:02d} - {arc_title}"
+                    if season.title != formatted_arc_title:
+                        print(f"Changing season title to {formatted_arc_title}")
+                        season.edit(**{'title.value': formatted_arc_title})
+                    if season.summary != arc_description:
+                        print(
+                            f"Changing season description to {arc_description}")
+                        season.edit(**{'summary.value': arc_description})
+                    for onepace_episode in arc['episodes']:
+                        if onepace_episode['part'] == episode.episodeNumber:
+                            onepace_description = extract_description(onepace_episode)
+                            onepace_title = extract_title(onepace_episode)
+                            print(
+                                f"Matched season {arc['part']} episode {onepace_episode['part']} -> season {season.title} episode {episode.episodeNumber}")
+                            if episode.title != onepace_title:
+                                print(
+                                    f"Changing episode title to {onepace_title}")
+                                episode.edit(
+                                    **{'title.value': onepace_title})
+                            if episode.summary != onepace_description:
+                                print(
+                                    f"Changing episode description to {onepace_description}")
+                                episode.edit(
+                                    **{'summary.value': onepace_description})
+                            break

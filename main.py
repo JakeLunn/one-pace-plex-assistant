@@ -1,9 +1,7 @@
 '''A CLI program for importing One Pace episodes into Plex'''
 import argparse
-import sys
 from argparse import ArgumentParser
 from modules.plex import run as plex_run
-
 
 def create_parsers() -> ArgumentParser:
     '''Create the parsers for the CLI'''
