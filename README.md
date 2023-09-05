@@ -73,6 +73,27 @@ The name of the show in Plex. If you've changed it from One Piece to One Pace al
 ### `--change-show-name`
 *Optional*: If this flag is included, then the show name will be changed to `One Pace` via metadata (the folder will remain `/One Piece`).
 
+## Example Usage
+- Get help with commands and arguments
+    - `oppa -h`
+    - `oppa setup-media -h`
+    - `oppa setup-plex -h`
+- Setup media
+    - ```bash
+            oppa setup-media \
+            --source-dir "C:\downloads" \
+            --target-dir "C:\plex-staging"
+      ```
+- Setup plex
+    - ```bash
+            oppa setup-plex \
+            --plex-token "myplextoken" \
+            --plex-host "http://localhost:32400/web/" \
+            --plex-library "Anime" \
+            --one-piece-show-name "One Pace" \
+            --change-show-name
+      ```
+
 # Contributing
 Feel free to create pull requests/issues or fork. If you are planning a major addition, I only ask that you make your plans known ahead of time by creating an issue here on Github and tagging me.
 
