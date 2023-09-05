@@ -22,6 +22,12 @@ Then using the `setup-plex` command, the application will:
 - The application reads file names to match them to the correct arcs/episodes from onepace.net. There was 1 mistake that had to be corrected already (whisky peak files were named whiskey peak) in-code and there could be more in future arcs/episodes. Please report any issues like this here on Github and I'll do my best to address.
 - This application could be rendered obselete if there are major changes to onepace.net or to the way the files are named. Again, will do my best to keep it up to date.
 
+# Installing
+> Note: Automated installation coming soon.
+1. Download the latest release .exe and place it somewhere, preferably into its own folder e.g. `C:\tools\one-pace-plex-assistant`.
+2. Add this folder to the system PATH
+3. Open command prompt, terminal or powershell and type `oppa -h` as a test.
+
 # How to Use
 The command-line is split into 2 main functions: 
 
