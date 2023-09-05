@@ -22,8 +22,10 @@ Then using the `setup-plex` command, the application will:
 Or,
 
 1. `git clone` this repo
-2. Open a new terminal / command prompt at the root of the repo
-2. Run main.py with `python main.py <command> <your args>`
+1. [Download and install Python](https://www.python.org/downloads/)
+1. Open a new terminal / command prompt at the root of the repo
+1. run `pip install -r requirements.txt`
+1. Run main.py with `python main.py <command> <your args>`
 
 # How to Use
 The command-line is split into 2 main functions: 
