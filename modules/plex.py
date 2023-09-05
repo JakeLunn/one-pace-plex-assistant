@@ -1,7 +1,6 @@
 """Plex module for One Pace Plex Importer"""
 from argparse import Namespace
 from plexapi.server import PlexServer
-from plexapi.library import ShowSection
 from modules.onepacenet import get_arcs, extract_description, extract_title
 
 def process_season(season):
