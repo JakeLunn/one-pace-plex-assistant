@@ -1,7 +1,7 @@
 # Description
 This is a command-line tool for assisting with the import of **One Pace** episodes into Plex and setting up its metadata so that it's displayed nicely.
 
-![One Pace library screenshot](docs\images\one-pace-library-01.png)
+![One Pace library screenshot](/docs/images/one-pace-library-01.png)
 
 Using the `setup-media` command, the application will:
 - Copy all downloaded .mkv one pace episodes in a directory into a Plex folder structure so it can be easily dropped into the Plex server media files.
