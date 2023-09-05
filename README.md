@@ -13,15 +13,6 @@ After this first stage, you should tell Plex to scan your media files and create
 Then using the `setup-plex` command, the application will:
 - Update all titles and descriptions to match onepace.net
 
-### Caveats
-- You can't have One Piece standard episodes + One Pace episodes in the same Plex library.
-    - **Why?** Because Plex doesn't have the ability to create shows that can't be matched to an existing TV show. That's why this app chooses to 'use' the One Piece show and then rename all of its metadata. Not ideal, but Plex doesn't have *good* support for custom shows.
-- The application will not download the episodes for you. 
-- The application will not upload episodes to remote-hosted plex servers or cloud storage like google drive. You will need to do this upload yourself, albeit it's very easy since the entire folder structure + files are created for you.
-    - If your Plex is hosted on the same local machine then you can just set the `--target-dir` to the appropriate folder.
-- The application reads file names to match them to the correct arcs/episodes from onepace.net. There was 1 mistake that had to be corrected already (whisky peak files were named whiskey peak) in-code and there could be more in future arcs/episodes. Please report any issues like this here on Github and I'll do my best to address.
-- This application could be rendered obselete if there are major changes to onepace.net or to the way the files are named. Again, will do my best to keep it up to date.
-
 # Installing
 > Note: Automated installation coming soon.
 1. Download the latest release .exe and place it somewhere, preferably into its own folder e.g. `C:\tools\one-pace-plex-assistant`.
@@ -76,3 +67,13 @@ The name of the show in Plex. If you've changed it from One Piece to One Pace al
 
 # Contributing
 Feel free to create pull requests/issues or fork. If you are planning a major addition, I only ask that you make your plans known ahead of time by creating an issue here on Github and tagging me.
+
+# FAQ / Caveats
+### Caveats
+- You can't have One Piece standard episodes + One Pace episodes in the same Plex library.
+    - **Why?** Because Plex doesn't have the ability to create shows that can't be matched to an existing TV show. That's why this app chooses to 'use' the One Piece show and then rename all of its metadata. Not ideal, but Plex doesn't have *good* support for custom shows.
+- The application will not download the episodes for you. 
+- The application will not upload episodes to remote-hosted plex servers or cloud storage like google drive. You will need to do this upload yourself, albeit it's very easy since the entire folder structure + files are created for you.
+    - If your Plex is hosted on the same local machine then you can just set the `--target-dir` to the appropriate folder.
+- The application reads file names to match them to the correct arcs/episodes from onepace.net. There was 1 mistake that had to be corrected already (whisky peak files were named whiskey peak) in-code and there could be more in future arcs/episodes. Please report any issues like this here on Github and I'll do my best to address.
+- This application could be rendered obselete if there are major changes to onepace.net or to the way the files are named. Again, will do my best to keep it up to date.
