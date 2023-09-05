@@ -1,58 +1,69 @@
-'''Plex module for One Pace Plex Importer'''
+"""Plex module for One Pace Plex Importer"""
 from argparse import Namespace
 from plexapi.server import PlexServer
 from plexapi.library import ShowSection
 from modules.onepacenet import get_arcs, extract_description, extract_title
 
+def process_season(season):
+    """Process a Plex season with One Pace metadata"""
+    print(f"Processing season: {season.title} ({season.ratingKey})")
+    onepace_arcs = get_arcs()
+    matching_arc = next(
+        (arc for arc in onepace_arcs if arc["part"] == season.seasonNumber), None
+    )
+    if matching_arc is None:
+        print(f"Could not find matching season for {season.title}")
+        return
+    arc_title = extract_title(matching_arc)
+    arc_description = extract_description(matching_arc)
+    formatted_arc_title = f"{matching_arc['part']:02d} - {arc_title}"
+    if season.title != formatted_arc_title:
+        print(f"Changing season title {season.title} -> {formatted_arc_title}")
+        season.edit(**{"title.value": formatted_arc_title})
+    if season.summary != arc_description:
+        print(f"Changing season description -> {arc_description}")
+        season.edit(**{"summary.value": arc_description})
+    for episode in season.episodes():
+        process_episode(matching_arc, episode)
 
-def __get_show(plex: PlexServer, library: str, show_name: str) -> ShowSection:
-    '''Get the show from Plex'''
-    return plex.library.section(library).searchShows(title=show_name)[0]
+
+def process_episode(arc, episode):
+    """Process a Plex episode with One Pace metadata"""
+    print(f"Processing episode: {episode.title} ({episode.ratingKey})")
+    matching_onepace_episode = next(
+        (
+            onepace_episode
+            for onepace_episode in arc["episodes"]
+            if onepace_episode["part"] == episode.episodeNumber
+        ),
+        None,
+    )
+    if matching_onepace_episode is None:
+        print(f"Could not find matching episode for {episode.title}")
+        return
+    onepace_title = extract_title(matching_onepace_episode)
+    onepace_description = extract_description(matching_onepace_episode)
+    if episode.title != onepace_title:
+        print(f"Changing episode title {episode.title} -> {onepace_title}")
+        episode.edit(**{"title.value": onepace_title})
+    if episode.summary != onepace_description:
+        print(f"Changing episode description -> {onepace_description}")
+        episode.edit(**{"summary.value": onepace_description})
 
 
 def run(args: Namespace) -> None:
-    '''Run the Plex module'''
+    """Run the Plex module"""
     plex = PlexServer(args.plex_host, args.plex_token)
-
-    show = __get_show(plex, args.plex_library, args.one_piece_show_name)
+    show = next(iter(plex.library.section(args.plex_library).searchShows(
+            title=args.one_piece_show_name)),
+            None,
+        )
+    if show is None:
+        print(f"Could not find show {args.one_piece_show_name}")
+        return
     print(f"Found show: {show.title} ({show.ratingKey})")
-
-    if args.change_show_name and show.title != 'One Pace':
-        print(f"Changing show name to One Pace")
-        show.edit(**{'title.value': 'One Pace'})
-
-    onepace_arcs = get_arcs()
-
+    if args.change_show_name and show.title != "One Pace":
+        print("Changing show name to One Pace")
+        show.edit(**{"title.value": "One Pace"})
     for season in show.seasons():
-        print(f"Processing season: {season.title} ({season.ratingKey})")
-        for episode in season.episodes():
-            print(f"Processing episode: {episode.title} ({episode.ratingKey})")
-            for arc in onepace_arcs:
-                if arc['part'] == season.seasonNumber:
-                    arc_title = extract_title(arc)
-                    arc_description = extract_description(arc)
-                    formatted_arc_title = f"{arc['part']:02d} - {arc_title}"
-                    if season.title != formatted_arc_title:
-                        print(f"Changing season title to {formatted_arc_title}")
-                        season.edit(**{'title.value': formatted_arc_title})
-                    if season.summary != arc_description:
-                        print(
-                            f"Changing season description to {arc_description}")
-                        season.edit(**{'summary.value': arc_description})
-                    for onepace_episode in arc['episodes']:
-                        if onepace_episode['part'] == episode.episodeNumber:
-                            onepace_description = extract_description(onepace_episode)
-                            onepace_title = extract_title(onepace_episode)
-                            print(
-                                f"Matched season {arc['part']} episode {onepace_episode['part']} -> season {season.title} episode {episode.episodeNumber}")
-                            if episode.title != onepace_title:
-                                print(
-                                    f"Changing episode title to {onepace_title}")
-                                episode.edit(
-                                    **{'title.value': onepace_title})
-                            if episode.summary != onepace_description:
-                                print(
-                                    f"Changing episode description to {onepace_description}")
-                                episode.edit(
-                                    **{'summary.value': onepace_description})
-                            break
+        process_season(season)
