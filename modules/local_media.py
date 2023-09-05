@@ -95,7 +95,13 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
                 \nPlease ensure that the original file name has not been changed!"
         )
         return None
-    file_arc = data.group("Arc").strip()
+    file_arc = (
+        data.group("Arc")
+        .strip()
+        .replace(
+            "Whiskey", "Whisky"
+        )  # One Pace metadata uses 'Whisky' but the files use 'Whiskey'
+    )
     file_episode = data.group("Episode").strip()
     file_quality = data.group("Quality").strip()
     matching_arc = next((a for a in arcs if extract_title(a) == file_arc), None)
