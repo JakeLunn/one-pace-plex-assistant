@@ -19,6 +19,12 @@ Then using the `setup-plex` command, the application will:
 2. Add this folder to the system PATH
 3. Open command prompt, terminal or powershell and type `oppa -h` as a test.
 
+Or,
+
+1. `git clone` this repo
+2. Open a new terminal / command prompt at the root of the repo
+2. Run main.py with `python main.py <command> <your args>`
+
 # How to Use
 The command-line is split into 2 main functions: 
 
