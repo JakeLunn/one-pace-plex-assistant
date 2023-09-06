@@ -54,10 +54,12 @@ OR
 
 This is the path to the directory where your downloaded files will be **copied** to, renamed, and put into folders so that it matches a format that Plex is expecting. 
 
-#### `setup-plex`
+## `setup-plex`
 This should be done only **after Plex has scanned your media files and created the show/episode in Plex**. You'll notice that the show's metadata (titles, descriptions, show name) will not be correct. This command will update all the metadata to the titles & descriptions from onepace.net.
 
 > Note: You can run this command every time you add new episodes. It won't make any changes to episodes which already have correct titles and descriptions.
+
+### Arguments
 
 #### `--plex-token`
 Your plex token. This is easy to get. Instructions are here: [Finding an authentication token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
