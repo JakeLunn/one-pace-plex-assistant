@@ -14,13 +14,16 @@ Then using the `setup-plex` command, the application will:
 - Update all titles and descriptions to match onepace.net
 
 # Installing
-> Note: Automated installation coming soon.
+Installer:
+1. Download oppa-setup.exe from the [latest release](https://github.com/JakeLunn/one-pace-plex-assistant/releases/tag/latest).
+2. Run installer
+
+Manual:
 1. Download the latest release .exe and place it somewhere, preferably into its own folder e.g. `C:\tools\one-pace-plex-assistant`.
 2. Add this folder to the system PATH
 3. Open command prompt, terminal or powershell and type `oppa -h` as a test.
 
-Or,
-
+Via Source Code:
 1. `git clone` this repo
 1. [Download and install Python](https://www.python.org/downloads/)
 1. Open a new terminal / command prompt at the root of the repo
