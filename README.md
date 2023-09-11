@@ -15,7 +15,7 @@ Then using the `setup-plex` command, the application will:
 
 # Installing
 Installer:
-1. Download oppa-setup.exe from the [latest release](https://github.com/JakeLunn/one-pace-plex-assistant/releases/tag/latest).
+1. Download oppa-setup.exe from the [latest release](https://github.com/JakeLunn/one-pace-plex-assistant/releases).
 2. Run installer
 
 Manual:
