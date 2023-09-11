@@ -15,19 +15,19 @@ def add_plex_parser(subparsers):
         help="Upload metadata for One Piece to Plex (titles, descriptions, etc.)",
     )
     subparser.add_argument(
-        "--plex-token",
+        "-t", "--plex-token",
         required=True,
         help="Your Plex token \
         (see https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)",
     )
     subparser.add_argument(
-        "--plex-host",
+        "-ph", "--plex-host",
         required=True,
         help="Your Plex host \
             (e.g. http://localhost:32400, https://plex.mydomain.com, etc.)",
     )
     subparser.add_argument(
-        "--plex-library",
+        "-l", "--plex-library",
         required=False,
         help='The name of the Plex library that contains \
                                         One Piece/One Pace episodes \
@@ -58,7 +58,7 @@ def add_media_parser(subparsers):
         help="Create folders for One Pace episodes for the Plex library",
     )
     subparser.add_argument(
-        "--source-dir",
+        "-s", "--source-dir",
         required=True,
         help="The directory containing the initial downloaded \
                                         One Pace episodes from onepace.net \
@@ -66,7 +66,7 @@ def add_media_parser(subparsers):
                                         the downloaded episodes",
     )
     subparser.add_argument(
-        "--target-dir", required=True, help="The directory to create the folders in"
+        "-t", "--target-dir", required=True, help="The directory to create the folders in"
     )
 
 
