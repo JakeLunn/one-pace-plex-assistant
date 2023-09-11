@@ -121,6 +121,9 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
         return None
 
     file_arc = __extract_group_value_from_match(data, "Arc")
+    file_arc.replace(
+        "Whiskey", "Whisky"
+    )  # Fix spelling difference in file name from onepace.net data :)
     file_episode = __extract_group_value_from_match(data, "Episode")
     file_quality = __extract_group_value_from_match(data, "Quality")
 
