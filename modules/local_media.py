@@ -8,7 +8,7 @@ from argparse import Namespace
 from modules.onepacenet import get_arcs, get_image, extract_title
 
 REGEX = re.compile(
-    r"\[(One Pace)\]\[(?P<Chapters>.+?)\]\s?(?P<Arc>.+?)\s(?P<Episode>\d{1,2})\s?\[(?P<Quality>\d{3,4}p)\]\[(?P<Hash>.+?)\]\.mkv"
+    r"\[(One Pace)\]\[(?P<Chapters>.+?)\]\s(?P<Arc>.+?)(?P<Episode>\d{1,2})?\s\[(?P<Quality>\d{3,4}p)\]\[(?P<Hash>.+?)\]\.mkv"
 )
 
 
@@ -81,10 +81,12 @@ class Episode:
         print(f"Copied cover for {self.title} from onepace.net to target directory")
 
 
-def __extract_group_value_from_match(match, group_name) -> str:
+def __extract_group_value_from_match(match, group_name, optional: bool = False) -> str:
     """Extract a group from a match"""
     group = match.group(group_name)
     if match is None:
+        if optional:
+            return None
         print(
             (
                 f"Could not extract '{group_name}' from file name '{match}'\n",
@@ -124,7 +126,11 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
     file_arc.replace(
         "Whiskey", "Whisky"
     )  # Fix spelling difference in file name from onepace.net data :)
-    file_episode = __extract_group_value_from_match(data, "Episode")
+
+    file_episode = __extract_group_value_from_match(data, "Episode", optional=True)
+    if file_episode is None or file_episode == "None":
+        file_episode = "01"
+
     file_quality = __extract_group_value_from_match(data, "Quality")
 
     matching_arc = next((a for a in arcs if extract_title(a) == file_arc), None)
@@ -132,6 +138,7 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
         print(f"Could not find matching arc for {file_arc} on onepace.net")
         return None
     print(f"Found matching arc for {file_arc}")
+
     matching_episode = next(
         (e for e in matching_arc["episodes"] if e["part"] == int(file_episode)),
         None,
@@ -142,7 +149,8 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
         )
         return None
     print(f"Found matching episode for {file_arc}/{file_episode} on onepace.net")
-    episode = Episode(
+
+    return Episode(
         title=matching_episode["invariant_title"],
         episode_number=matching_episode["part"],
         resolution=file_quality,
@@ -150,7 +158,6 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
         source_file=file,
         target_directory=os.path.join(target_dir, f"Season {matching_arc['part']:02d}"),
     )
-    return episode
 
 
 def copy_arc_cover_to_destination(target_directory: str, arc):
