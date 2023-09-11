@@ -7,8 +7,13 @@ from dataclasses import dataclass
 from argparse import Namespace
 from modules.onepacenet import get_arcs, get_image, extract_title
 
-__FILE_MATCH_REGEX = r"\[(One Pace)\]\[(?P<Chapters>.+?)\](?P<Arc>.+?)(?P<Episode>\d{1,2})?\s\[(?P<Quality>\d{3,4}p)\]\[(?P<Hash>.+?)\]\.mkv"
-REGEX = re.compile(__FILE_MATCH_REGEX)
+REGEX = re.compile(
+    r"\[(One Pace)\]\[(?P<Chapters>.+?)\]\s?(?P<Arc>.+?)\s(?P<Episode>\d{1,2})\s?\[(?P<Quality>\d{3,4}p)\]\[(?P<Hash>.+?)\]\.mkv"
+)
+
+
+class FileMatchException(Exception):
+    """Exception for when a file does not match the expected format"""
 
 
 @dataclass
@@ -76,6 +81,24 @@ class Episode:
         print(f"Copied cover for {self.title} from onepace.net to target directory")
 
 
+def __extract_group_value_from_match(match, group_name) -> str:
+    """Extract a group from a match"""
+    group = match.group(group_name)
+    if match is None:
+        print(
+            (
+                f"Could not extract '{group_name}' from file name '{match}'\n",
+                "Is the file in the same format as when it was downloaded from onepace.net?\n"
+                "Expected format: '[One Pace][Chapters] [Arc] [Episode] [Quality][Hash].mkv'\n",
+                "Example: '[One Pace][42-44] Baratie 01 [1080p][CC37D6C6].mkv'\n",
+            )
+        )
+        raise FileMatchException(f"Could not find group {group_name} in match")
+    group_str = str(group)
+    group_str.strip()
+    return group_str
+
+
 def search_directory(directory) -> List[FileInfo]:
     """Search a directory for One Pace episodes"""
     files = []
@@ -88,6 +111,7 @@ def search_directory(directory) -> List[FileInfo]:
 
 def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
     """Get the episode for the provided file"""
+    print(f"Extracting episode information from file: {file.name}")
     data = REGEX.match(file.name)
     if data is None:
         print(
@@ -95,15 +119,11 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
                 \nPlease ensure that the original file name has not been changed!"
         )
         return None
-    file_arc = (
-        data.group("Arc")
-        .strip()
-        .replace(
-            "Whiskey", "Whisky"
-        )  # One Pace metadata uses 'Whisky' but the files use 'Whiskey'
-    )
-    file_episode = data.group("Episode").strip()
-    file_quality = data.group("Quality").strip()
+
+    file_arc = __extract_group_value_from_match(data, "Arc")
+    file_episode = __extract_group_value_from_match(data, "Episode")
+    file_quality = __extract_group_value_from_match(data, "Quality")
+
     matching_arc = next((a for a in arcs if extract_title(a) == file_arc), None)
     if matching_arc is None:
         print(f"Could not find matching arc for {file_arc} on onepace.net")
