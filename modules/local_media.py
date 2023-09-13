@@ -97,7 +97,7 @@ def __extract_group_value_from_match(match, group_name, optional: bool = False) 
         )
         raise FileMatchException(f"Could not find group {group_name} in match")
     group_str = str(group)
-    group_str.strip()
+    group_str = group_str.strip()
     return group_str
 
 
@@ -123,7 +123,7 @@ def get_episode(target_dir: str, arcs, file: FileInfo) -> Episode:
         return None
 
     file_arc = __extract_group_value_from_match(data, "Arc")
-    file_arc.replace(
+    file_arc = file_arc.replace(
         "Whiskey", "Whisky"
     )  # Fix spelling difference in file name from onepace.net data :)
 
