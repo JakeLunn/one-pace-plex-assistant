@@ -5,7 +5,7 @@ import shutil
 from typing import List
 from dataclasses import dataclass
 from argparse import Namespace
-from modules.onepacenet import get_arcs, get_image, extract_title
+from modules.onepacenet import get_arcs, get_image, extract_title, MediaType
 
 REGEX = re.compile(
     r"\[(One Pace)\]\[(?P<Chapters>.+?)\]\s(?P<Arc>.+?)(?P<Episode>\d{1,2})?\s\[(?P<Quality>\d{3,4}p)\]\[(?P<Hash>.+?)\]\.mkv"
@@ -44,8 +44,7 @@ class Episode:
         arc_title: str,
         source_file: FileInfo,
         target_directory: str,
-        target_file=None,
-        cover_url=None,
+        target_file=None
     ):
         self.title = title
         self.episode_number = episode_number
@@ -54,9 +53,6 @@ class Episode:
         self.source_file = source_file
         self.target_directory = target_directory
         file_name = f"One.Pace.{arc_title}.E{episode_number:02d}.{resolution}.mkv"
-        self.cover_url = (
-            cover_url or f"/images/episodes/cover-{title.replace(' ', '-')}.jpg".lower()
-        )
         self.target_file = target_file or FileInfo(
             name=file_name,
             full_name=os.path.join(target_directory, file_name),
@@ -75,7 +71,7 @@ class Episode:
         file_full_name = os.path.join(self.target_directory, file_name)
         if os.path.exists(file_full_name):
             return
-        image_data = get_image(self.cover_url)
+        image_data = get_image(MediaType.EPISODE, self.title)
         with open(file_full_name, "wb") as file:
             file.write(image_data)
         print(f"Copied cover for {self.title} from onepace.net to target directory")
@@ -99,7 +95,6 @@ def __extract_group_value_from_match(match, group_name, optional: bool = False) 
     group_str = str(group)
     group_str = group_str.strip()
     return group_str
-
 
 def search_directory(directory) -> List[FileInfo]:
     """Search a directory for One Pace episodes"""
@@ -167,10 +162,9 @@ def copy_arc_cover_to_destination(target_directory: str, arc):
     file_name = f"Season{part:02d}.jpg"
     target_directory = os.path.join(target_directory, f"Season {part:02d}")
     file_full_name = os.path.join(target_directory, file_name)
-    url = f"/images/arcs/cover-{title.replace(' ', '-')}-arc.jpg".lower()
     if os.path.exists(file_full_name):
         return  # Already exists
-    image_data = get_image(url)
+    image_data = get_image(MediaType.ARC, title)
     with open(file_full_name, "wb") as file:
         file.write(image_data)
     print(f"Copied cover for {title} from onepace.net to target directory")

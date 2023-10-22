@@ -1,13 +1,26 @@
 """Module for calling the onepace.net API to retrieve episode information"""
 import re
 import requests
+from enum import Enum
 
 BUILD_ID_REGEX = re.compile(r"\"buildId\".+?\"(?P<BuildId>.+?)\"")
 
+MediaType = Enum('MediaType', ['ARC', 'EPISODE'])
 
 class TranslationNotFoundException(Exception):
     """Exception for when a translation is not found"""
 
+def __generate_cover_url(media_type: MediaType, title: str):
+    """Generate a cover url given a title"""
+    titlef = title
+    titlef = titlef.replace(' ', '-')
+    titlef = titlef.replace('\'', '')
+    media_area = 'episodes'
+    if media_type == MediaType.ARC:
+        titlef = titlef + "-arc"
+        media_area = 'arcs'
+    cover_url = f"/images/{media_area}/cover-{titlef}.jpg".lower()
+    return cover_url
 
 def get_build() -> str:
     """Get the Build Id from onepace.net"""
@@ -27,8 +40,9 @@ def get_arcs() -> list:
     return arcs
 
 
-def get_image(url: str) -> bytes:
+def get_image(media_type: MediaType, title: str) -> bytes:
     """Download Image from the One Pace Servers"""
+    url = __generate_cover_url(media_type, title)
     response = requests.get(
         f"https://onepace.net/_next/image?url={url}&w=828&q=75", timeout=30
     )
