@@ -94,7 +94,7 @@ The name of the Plex library that contains the One Pace episodes e.g. `Anime`, `
     - ```bash
             oppa setup-plex \
             --plex-token "myplextoken" \
-            --plex-host "http://localhost:32400/web/" \
+            --plex-host "http://localhost:32400" \
             --plex-library "Anime" \
             --one-piece-show-name "One Pace" \
             --change-show-name
